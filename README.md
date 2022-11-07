@@ -31,6 +31,9 @@ AnsibleでNFSがインストールされたサーバ・クライアント環境�
 
 ## 実行例
 
+- /nfs/general: 所有者が`nobody:nogroup`に固定
+- /nfs/home: 所有者をクライアントが変更できる（`no_root_squash`）
+
 ```shell
 # Remove the VM's SSH server key fingerprint from the host's known_hosts (required for re-created VMs)
 ssh-keygen -f "$HOME/.ssh/known_hosts" -R "192.168.56.10"

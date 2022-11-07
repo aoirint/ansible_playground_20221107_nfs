@@ -16,11 +16,26 @@
         group: nogroup
         mode: '0755'
 
-    - name: Add a NFS config line to /etc/exports
+    - name: Add /var/nfs/general line to /etc/exports
       ansible.builtin.lineinfile:
         path: /etc/exports
         regexp: '^\/var\/nfs\/general'
         line: /var/nfs/general 192.168.56.11(rw,sync,no_subtree_check)
+        state: present
+
+    - name: Create /var/nfs/home directory
+      ansible.builtin.file:
+        path: /var/nfs/home
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Add /var/nfs/home to /etc/exports
+      ansible.builtin.lineinfile:
+        path: /etc/exports
+        regexp: '^\/var\/nfs\/home'
+        line: /var/nfs/home 192.168.56.11(rw,sync,no_root_squash,no_subtree_check)
         state: present
 
     - name: Restart nfs-kernel-server service
@@ -50,6 +65,20 @@
       ansible.posix.mount:
         src: '192.168.56.10:/var/nfs/general'
         path: /nfs/general
+        fstype: nfs
+        opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
+        state: mounted
+
+    - name: Create /nfs/home directory
+      ansible.builtin.file:
+        path: /nfs/home
+        state: directory
+        mode: '0755'
+
+    - name: Mount /nfs/home directory
+      ansible.posix.mount:
+        src: '192.168.56.10:/var/nfs/home'
+        path: /nfs/home
         fstype: nfs
         opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
         state: mounted
