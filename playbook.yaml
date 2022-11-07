@@ -5,7 +5,6 @@
       ansible.builtin.apt:
         name:
           - nfs-kernel-server
-          - stunnel
         state: latest
         update_cache: true
 
@@ -38,7 +37,6 @@
       ansible.builtin.apt:
         name:
           - nfs-common
-          - stunnel
         state: latest
         update_cache: true
 

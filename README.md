@@ -6,7 +6,6 @@
 - <https://developer.hashicorp.com/vagrant/docs/multi-machine>
 - <https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html>
 - <https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html>
-- <https://www.linuxjournal.com/content/encrypting-nfsv4-stunnel-tls>
 
 ## 実行例
 
