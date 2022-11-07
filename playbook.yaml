@@ -1,0 +1,57 @@
+- name: Install NFS Server
+  hosts: servers
+  tasks:
+    - name: Install apt dependencies
+      ansible.builtin.apt:
+        name:
+          - nfs-kernel-server
+          - stunnel
+        state: latest
+        update_cache: true
+
+    - name: Create /var/nfs/general directory
+      ansible.builtin.file:
+        path: /var/nfs/general
+        state: directory
+        owner: nobody
+        group: nogroup
+        mode: '0755'
+
+    - name: Add a NFS config line to /etc/exports
+      ansible.builtin.lineinfile:
+        path: /etc/exports
+        regexp: '^\/var\/nfs\/general'
+        line: /var/nfs/general 192.168.56.11(rw,sync,no_subtree_check)
+        state: present
+
+    - name: Restart nfs-kernel-server service
+      ansible.builtin.systemd:
+        name: nfs-kernel-server
+        state: restarted
+        enabled: true
+
+
+- name: Install NFS Client
+  hosts: clients
+  tasks:
+    - name: Install apt dependencies
+      ansible.builtin.apt:
+        name:
+          - nfs-common
+          - stunnel
+        state: latest
+        update_cache: true
+
+    - name: Create /nfs/general directory
+      ansible.builtin.file:
+        path: /nfs/general
+        state: directory
+        mode: '0755'
+
+    - name: Mount /nfs/general directory
+      ansible.posix.mount:
+        src: '192.168.56.10:/var/nfs/general'
+        path: /nfs/general
+        fstype: nfs
+        opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
+        state: mounted
