@@ -16,12 +16,12 @@
         group: nogroup
         mode: '0755'
 
-    - name: Add /var/nfs/general for 192.168.56.11 line to /etc/exports
-      ansible.builtin.lineinfile:
-        path: /etc/exports
-        regexp: '^\/var\/nfs\/general 192\.168\.56\.11'
-        line: /var/nfs/general 192.168.56.11(rw,sync,no_subtree_check)
-        state: present
+    # - name: Add /var/nfs/general for 192.168.56.11 line to /etc/exports
+    #   ansible.builtin.lineinfile:
+    #     path: /etc/exports
+    #     regexp: '^\/var\/nfs\/general 192\.168\.56\.11'
+    #     line: /var/nfs/general 192.168.56.11(rw,sync,no_subtree_check)
+    #     state: present
 
     - name: Create /var/nfs/home directory
       ansible.builtin.file:
@@ -31,12 +31,12 @@
         group: root
         mode: '0755'
 
-    - name: Add /var/nfs/home for 192.168.56.11 to /etc/exports
-      ansible.builtin.lineinfile:
-        path: /etc/exports
-        regexp: '^\/var\/nfs\/home 192\.168\.56\.11'
-        line: /var/nfs/home 192.168.56.11(rw,sync,no_root_squash,no_subtree_check)
-        state: present
+    # - name: Add /var/nfs/home for 192.168.56.11 to /etc/exports
+    #   ansible.builtin.lineinfile:
+    #     path: /etc/exports
+    #     regexp: '^\/var\/nfs\/home 192\.168\.56\.11'
+    #     line: /var/nfs/home 192.168.56.11(rw,sync,no_root_squash,no_subtree_check)
+    #     state: present
 
     # NFS over TLS support
     - name: Install apt dependencies
@@ -78,14 +78,14 @@
       ansible.builtin.lineinfile:
         path: /etc/exports
         regexp: '^\/var\/nfs\/general 127\.0\.0\.1'
-        line: /var/nfs/general 127.0.0.1(rw,sync,no_subtree_check)
+        line: /var/nfs/general 127.0.0.1(rw,sync,no_subtree_check,insecure)
         state: present
 
     - name: Add /var/nfs/home for 127.0.0.1 line to /etc/exports
       ansible.builtin.lineinfile:
         path: /etc/exports
         regexp: '^\/var\/nfs\/home 127\.0\.0\.1'
-        line: /var/nfs/home 127.0.0.1(rw,sync,no_root_squash,no_subtree_check)
+        line: /var/nfs/home 127.0.0.1(rw,sync,no_root_squash,no_subtree_check,insecure)
         state: present
 
     - name: Restart nfs-kernel-server service
@@ -119,33 +119,33 @@
         state: latest
         update_cache: true
 
-    - name: Create /nfs/general directory
-      ansible.builtin.file:
-        path: /nfs/general
-        state: directory
-        mode: '0755'
+    # - name: Create /nfs/general directory
+    #   ansible.builtin.file:
+    #     path: /nfs/general
+    #     state: directory
+    #     mode: '0755'
 
-    - name: Mount /nfs/general directory
-      ansible.posix.mount:
-        src: '192.168.56.10:/var/nfs/general'
-        path: /nfs/general
-        fstype: nfs
-        opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
-        state: mounted
+    # - name: Mount /nfs/general directory
+    #   ansible.posix.mount:
+    #     src: '192.168.56.10:/var/nfs/general'
+    #     path: /nfs/general
+    #     fstype: nfs
+    #     opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
+    #     state: mounted
 
-    - name: Create /nfs/home directory
-      ansible.builtin.file:
-        path: /nfs/home
-        state: directory
-        mode: '0755'
+    # - name: Create /nfs/home directory
+    #   ansible.builtin.file:
+    #     path: /nfs/home
+    #     state: directory
+    #     mode: '0755'
 
-    - name: Mount /nfs/home directory
-      ansible.posix.mount:
-        src: '192.168.56.10:/var/nfs/home'
-        path: /nfs/home
-        fstype: nfs
-        opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
-        state: mounted
+    # - name: Mount /nfs/home directory
+    #   ansible.posix.mount:
+    #     src: '192.168.56.10:/var/nfs/home'
+    #     path: /nfs/home
+    #     fstype: nfs
+    #     opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
+    #     state: mounted
 
     # NFS over TLS support
     - name: Install apt dependencies

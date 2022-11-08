@@ -46,6 +46,8 @@ TLS
 - <https://stackoverflow.com/questions/991758/how-to-get-pem-file-from-key-and-crt-files>
 - <https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html>
 - <https://qiita.com/Gin/items/58df302714f9a28048c5>
+- <http://blog.livedoor.jp/cadmean/archives/23581393.html>
+- <http://blog.livedoor.jp/cadmean/archives/23650174.html>
 
 ## 実行例
 
