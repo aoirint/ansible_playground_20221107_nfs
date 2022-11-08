@@ -22,7 +22,7 @@ NFS / NFS over TLS (stunnel) のおためし
 VagrantでVM（Ubuntu 20.04 with sshd）を立て、
 AnsibleでNFSがインストールされたサーバ・クライアント環境を宣言し、適用する。
 
-- nfs-kernel-server 1.3.4-2.5ubuntu3.4: <https://packages.ubuntu.com/focal/net/nfs-kernel-server>
+- nfs-kernel-server 1.3.4-2.5ubuntu3.4: <https://packages.ubuntu.com/focal/nfs-kernel-server>
 - stunnel4 5.56-1: <https://packages.ubuntu.com/focal/stunnel4>
 
 ## 参考
