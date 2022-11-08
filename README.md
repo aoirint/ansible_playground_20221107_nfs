@@ -29,6 +29,26 @@ AnsibleでNFSがインストールされたサーバ・クライアント環境�
 - <https://docs.ansible.com/ansible/latest/collections/ansible/posix/mount_module.html>
 - <https://docs.ansible.com/ansible/latest/collections/ansible/builtin/lineinfile_module.html>
 
+TLS
+
+- <https://www.linuxjournal.com/content/encrypting-nfsv4-stunnel-tls>
+- <https://qiita.com/tmiki/items/626d0932f413fdc7d7fe>
+- <https://www.stunnel.org/static/stunnel.html>
+- <https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_privatekey_module.html>
+- <https://docs.ansible.com/ansible/latest/collections/community/crypto/openssl_csr_module.html>
+- <https://docs.ansible.com/ansible/latest/collections/community/crypto/x509_certificate_module.html>
+- <https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html>
+- <https://stackoverflow.com/questions/35984151/how-to-create-new-system-service-by-ansible-playbook>
+- <https://docs.ansible.com/ansible/latest/collections/ansible/builtin/copy_module.html>
+- <https://www.tohoho-web.com/ex/openssl.html>
+- <https://qiita.com/kunichiko/items/12cbccaadcbf41c72735>
+- <https://stackoverflow.com/questions/58839349/how-to-extract-crt-and-key-from-pem-file-on-ansible>
+- <https://stackoverflow.com/questions/991758/how-to-get-pem-file-from-key-and-crt-files>
+- <https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html>
+- <https://qiita.com/Gin/items/58df302714f9a28048c5>
+- <http://blog.livedoor.jp/cadmean/archives/23581393.html>
+- <http://blog.livedoor.jp/cadmean/archives/23650174.html>
+
 ## 実行例
 
 - /nfs/general: 所有者が`nobody:nogroup`に固定
@@ -53,6 +73,7 @@ ansible-playbook -i inventory.yaml playbook.yaml
 vagrant ssh server
 
 cd /var/nfs/general
+# cd /var/nfs-tls/general
 sudo touch hoge
 
 exit
@@ -61,6 +82,7 @@ exit
 vagrant ssh client
 
 cd /nfs/general
+# cd /nfs-tls/general
 
 # found "hoge"
 ls -la
