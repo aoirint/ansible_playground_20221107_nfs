@@ -73,6 +73,7 @@ ansible-playbook -i inventory.yaml playbook.yaml
 vagrant ssh server
 
 cd /var/nfs/general
+# cd /var/nfs-tls/general
 sudo touch hoge
 
 exit
@@ -81,6 +82,7 @@ exit
 vagrant ssh client
 
 cd /nfs/general
+# cd /nfs-tls/general
 
 # found "hoge"
 ls -la
