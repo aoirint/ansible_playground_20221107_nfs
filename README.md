@@ -1,6 +1,6 @@
 # nfs_ansible_playground_20221107
 
-NFS のおためし
+NFS / NFS over TLS (stunnel) のおためし
 
 ## 実行環境
 
