@@ -72,7 +72,7 @@ VBoxManage controlvm VM_NAME poweroff
 VBoxManage unregistervm VM_NAME
 ```
 
-他に重要なVMがなければ、以下のエイリアスで、すべてのVMを削除できる（意図しないデータ喪失に注意）。
+他に重要なVMがなければ、以下のエイリアスで、VirtualBox上のすべてのVMを削除できる（意図しないデータ喪失に注意）。
 
 - <https://github.com/hashicorp/vagrant/issues/910#issuecomment-16026322>
 
