@@ -61,7 +61,7 @@ vagrant destroy -f
 
 ### Find all VirtualBox VMs and remove them
 
-ディレクトリ名の変更などの要因で、VMが起動した状態のまま、VagrantがVMを追跡できなくなることがある。
+`.vagrant`ディレクトリの削除などの要因で、VMが起動した状態のまま、VagrantがVMを追跡できなくなることがある。
 この状態で新たなVMが起動すると、Ansibleは古いVMを初期化するが、Vagrantは新たなVMに接続する、のような意図しない挙動になるおそれがある。
 このような場合、VirtualBoxの管理コマンドで直接削除する。
 
