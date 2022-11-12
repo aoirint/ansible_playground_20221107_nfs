@@ -51,6 +51,7 @@ TLS
 - <https://qiita.com/Gin/items/58df302714f9a28048c5>
 - <http://blog.livedoor.jp/cadmean/archives/23581393.html>
 - <http://blog.livedoor.jp/cadmean/archives/23650174.html>
+- <https://etherarp.net/securing-connections-with-stunnel/index.html>
 
 ## 実行例
 
