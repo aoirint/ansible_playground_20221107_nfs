@@ -1,30 +1,6 @@
-- name: Install NFS Server
+- name: Generate a server certificate
   hosts: servers
   tasks:
-    - name: Install apt dependencies
-      ansible.builtin.apt:
-        name:
-          - nfs-kernel-server
-          - stunnel
-        state: latest
-        update_cache: true
-
-    - name: Create /var/nfs/general directory
-      ansible.builtin.file:
-        path: /var/nfs/general
-        state: directory
-        owner: nobody
-        group: nogroup
-        mode: '0755'
-
-    - name: Create /var/nfs/home directory
-      ansible.builtin.file:
-        path: /var/nfs/home
-        state: directory
-        owner: root
-        group: root
-        mode: '0755'
-
     - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
       community.crypto.openssl_privatekey:
         path: /etc/stunnel/nfs-tls-server.key
@@ -53,6 +29,66 @@
         dest: ./secrets/nfs-tls-server.crt
         flat: yes
 
+
+- name: Generate a client certificate
+  hosts: clients
+  tasks:
+    - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
+      community.crypto.openssl_privatekey:
+        path: /etc/stunnel/nfs-tls-client.key
+
+    - name: Generate an OpenSSL Certificate Signing Request with Subject information
+      community.crypto.openssl_csr:
+        path: /etc/stunnel/nfs-tls-client.csr
+        privatekey_path: /etc/stunnel/nfs-tls-client.key
+        common_name: nfs-tls-client
+
+    - name: Generate a Self Signed OpenSSL certificate
+      community.crypto.x509_certificate:
+        path: /etc/stunnel/nfs-tls-client.crt
+        privatekey_path: /etc/stunnel/nfs-tls-client.key
+        csr_path: /etc/stunnel/nfs-tls-client.csr
+        provider: selfsigned
+
+    - name: Concatenate nfs-tls-client.key and nfs-tls-client.crt as nfs-tls-client.pem
+      no_log: true
+      ansible.builtin.shell:
+        cmd: cat /etc/stunnel/nfs-tls-client.key /etc/stunnel/nfs-tls-client.crt > /etc/stunnel/nfs-tls-client.pem
+
+    - name: Fetch nfs-tls-client.crt for the client authentication by the server
+      ansible.builtin.fetch:
+        src: /etc/stunnel/nfs-tls-client.crt
+        dest: ./secrets/nfs-tls-client.crt
+        flat: yes
+
+
+- name: Install NFS Server
+  hosts: servers
+  tasks:
+    - name: Install apt dependencies
+      ansible.builtin.apt:
+        name:
+          - nfs-kernel-server
+          - stunnel
+        state: latest
+        update_cache: true
+
+    - name: Create /var/nfs/general directory
+      ansible.builtin.file:
+        path: /var/nfs/general
+        state: directory
+        owner: nobody
+        group: nogroup
+        mode: '0755'
+
+    - name: Create /var/nfs/home directory
+      ansible.builtin.file:
+        path: /var/nfs/home
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
     - name: Add /var/nfs/general for 127.0.0.1 line to /etc/exports
       ansible.builtin.lineinfile:
         path: /etc/exports
@@ -72,6 +108,14 @@
         name: nfs-kernel-server
         state: restarted
         enabled: true
+
+    - name: Copy nfs-tls-client.crt (generated in client tasks)
+      ansible.builtin.copy:
+        src: ./secrets/nfs-tls-client.crt
+        dest: /etc/stunnel/nfs-tls-client.crt
+        owner: root
+        group: root
+        mode: '0400'
 
     - name: Copy nfs-tls-server.conf to /etc/stunnel/nfs-tls-server.conf
       ansible.builtin.copy:
