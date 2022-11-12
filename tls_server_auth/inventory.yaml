@@ -1,7 +1,7 @@
 servers:
   hosts:
     vm01:
-      ansible_host: 192.168.56.10
+      ansible_host: 192.168.56.20
       ansible_user: vagrant
       ansible_ssh_private_key_file: ./secrets/ssh_key
       ansible_become: yes
@@ -9,7 +9,7 @@ servers:
 clients:
   hosts:
     vm02:
-      ansible_host: 192.168.56.11
+      ansible_host: 192.168.56.21
       ansible_user: vagrant
       ansible_ssh_private_key_file: ./secrets/ssh_key
       ansible_become: yes
