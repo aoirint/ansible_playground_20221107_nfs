@@ -68,10 +68,10 @@
       ansible.builtin.shell:
         cmd: cat /etc/stunnel/nfs-tls.key /etc/stunnel/nfs-tls.crt > /etc/stunnel/nfs-tls.pem
 
-    - name: Fetch nfs-tls.pem
+    - name: Fetch nfs-tls.crt for the server authentication by clients
       ansible.builtin.fetch:
-        src: /etc/stunnel/nfs-tls.pem
-        dest: ./secrets/nfs-tls.pem
+        src: /etc/stunnel/nfs-tls.crt
+        dest: ./secrets/nfs-tls.crt
         flat: yes
 
     - name: Add /var/nfs/general for 127.0.0.1 line to /etc/exports
@@ -155,10 +155,10 @@
         state: latest
         update_cache: true
 
-    - name: Copy nfs-tls.pem (generated in server tasks)
+    - name: Copy nfs-tls.crt (generated in server tasks)
       ansible.builtin.copy:
-        src: ./secrets/nfs-tls.pem
-        dest: /etc/stunnel/nfs-tls.pem
+        src: ./secrets/nfs-tls.crt
+        dest: /etc/stunnel/nfs-tls.crt
         owner: root
         group: root
         mode: '0400'
