@@ -24,7 +24,7 @@ Create the VMs with the Vagrantfile.
 vagrant up
 ```
 
-Initialize the VMs with the Ansible Playbook.
+Then, initialize the VMs with the Ansible Playbook.
 
 ```shell
 ansible-playbook -i inventory.yaml playbook.yaml
