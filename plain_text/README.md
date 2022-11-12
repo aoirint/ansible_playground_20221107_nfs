@@ -6,7 +6,7 @@ Generate a ssh key pair (without password) to sign in the VMs.
 
 ```shell
 mkdir -p secrets
-ssh-keygen -f secrets/key -P ""
+ssh-keygen -f secrets/ssh_key -P ""
 ```
 
 Create the VMs with the Vagrantfile.
