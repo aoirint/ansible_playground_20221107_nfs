@@ -1,4 +1,4 @@
-# NFS over plain text
+# NFS over plain text connection
 
 ## VMs
 
