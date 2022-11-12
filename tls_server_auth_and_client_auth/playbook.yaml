@@ -5,6 +5,7 @@
       ansible.builtin.apt:
         name:
           - nfs-kernel-server
+          - stunnel
         state: latest
         update_cache: true
 
@@ -16,13 +17,6 @@
         group: nogroup
         mode: '0755'
 
-    - name: Add /var/nfs/general for 192.168.56.11 line to /etc/exports
-      ansible.builtin.lineinfile:
-        path: /etc/exports
-        regexp: '^\/var\/nfs\/general 192\.168\.56\.11'
-        line: /var/nfs/general 192.168.56.11(rw,sync,no_subtree_check)
-        state: present
-
     - name: Create /var/nfs/home directory
       ansible.builtin.file:
         path: /var/nfs/home
@@ -31,47 +25,32 @@
         group: root
         mode: '0755'
 
-    - name: Add /var/nfs/home for 192.168.56.11 to /etc/exports
-      ansible.builtin.lineinfile:
-        path: /etc/exports
-        regexp: '^\/var\/nfs\/home 192\.168\.56\.11'
-        line: /var/nfs/home 192.168.56.11(rw,sync,no_root_squash,no_subtree_check)
-        state: present
-
-    # NFS over TLS support
-    - name: Install apt dependencies
-      ansible.builtin.apt:
-        name:
-          - stunnel
-        state: latest
-        update_cache: true
-
     - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
       community.crypto.openssl_privatekey:
-        path: /etc/stunnel/nfs-tls.key
+        path: /etc/stunnel/nfs-tls-server.key
 
     - name: Generate an OpenSSL Certificate Signing Request with Subject information
       community.crypto.openssl_csr:
-        path: /etc/stunnel/nfs-tls.csr
-        privatekey_path: /etc/stunnel/nfs-tls.key
-        common_name: nfs-tls
+        path: /etc/stunnel/nfs-tls-server.csr
+        privatekey_path: /etc/stunnel/nfs-tls-server.key
+        common_name: nfs-tls-server
 
     - name: Generate a Self Signed OpenSSL certificate
       community.crypto.x509_certificate:
-        path: /etc/stunnel/nfs-tls.crt
-        privatekey_path: /etc/stunnel/nfs-tls.key
-        csr_path: /etc/stunnel/nfs-tls.csr
+        path: /etc/stunnel/nfs-tls-server.crt
+        privatekey_path: /etc/stunnel/nfs-tls-server.key
+        csr_path: /etc/stunnel/nfs-tls-server.csr
         provider: selfsigned
 
-    - name: Concatenate nfs-tls.key and nfs-tls.crt as nfs-tls.pem
+    - name: Concatenate nfs-tls-server.key and nfs-tls-server.crt as nfs-tls-server.pem
       no_log: true
       ansible.builtin.shell:
-        cmd: cat /etc/stunnel/nfs-tls.key /etc/stunnel/nfs-tls.crt > /etc/stunnel/nfs-tls.pem
+        cmd: cat /etc/stunnel/nfs-tls-server.key /etc/stunnel/nfs-tls-server.crt > /etc/stunnel/nfs-tls-server.pem
 
-    - name: Fetch nfs-tls.crt for the server authentication by clients
+    - name: Fetch nfs-tls-server.crt for the server authentication by clients
       ansible.builtin.fetch:
-        src: /etc/stunnel/nfs-tls.crt
-        dest: ./secrets/nfs-tls.crt
+        src: /etc/stunnel/nfs-tls-server.crt
+        dest: ./secrets/nfs-tls-server.crt
         flat: yes
 
     - name: Add /var/nfs/general for 127.0.0.1 line to /etc/exports
@@ -116,49 +95,14 @@
       ansible.builtin.apt:
         name:
           - nfs-common
-        state: latest
-        update_cache: true
-
-    - name: Create /nfs/general directory
-      ansible.builtin.file:
-        path: /nfs/general
-        state: directory
-        mode: '0755'
-
-    - name: Mount /nfs/general directory
-      ansible.posix.mount:
-        src: '192.168.56.10:/var/nfs/general'
-        path: /nfs/general
-        fstype: nfs
-        opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
-        state: mounted
-
-    - name: Create /nfs/home directory
-      ansible.builtin.file:
-        path: /nfs/home
-        state: directory
-        mode: '0755'
-
-    - name: Mount /nfs/home directory
-      ansible.posix.mount:
-        src: '192.168.56.10:/var/nfs/home'
-        path: /nfs/home
-        fstype: nfs
-        opts: auto,nofail,noatime,nolock,intr,tcp,actimeo=1800
-        state: mounted
-
-    # NFS over TLS support
-    - name: Install apt dependencies
-      ansible.builtin.apt:
-        name:
           - stunnel
         state: latest
         update_cache: true
 
-    - name: Copy nfs-tls.crt (generated in server tasks)
+    - name: Copy nfs-tls-server.crt (generated in server tasks)
       ansible.builtin.copy:
-        src: ./secrets/nfs-tls.crt
-        dest: /etc/stunnel/nfs-tls.crt
+        src: ./secrets/nfs-tls-server.crt
+        dest: /etc/stunnel/nfs-tls-server.crt
         owner: root
         group: root
         mode: '0400'
@@ -177,30 +121,30 @@
         state: restarted
         enabled: true
 
-    - name: Create /nfs-tls/general directory
+    - name: Create /nfs/general directory
       ansible.builtin.file:
-        path: /nfs-tls/general
+        path: /nfs/general
         state: directory
         mode: '0755'
 
-    - name: Mount /nfs-tls/general directory
+    - name: Mount /nfs/general directory
       ansible.posix.mount:
         src: '127.0.0.1:/var/nfs/general'
-        path: /nfs-tls/general
+        path: /nfs/general
         fstype: nfs
         opts: auto,nofail,noatime,nolock,intr,tcp,port=2323,actimeo=1800
         state: mounted
 
-    - name: Create /nfs-tls/home directory
+    - name: Create /nfs/home directory
       ansible.builtin.file:
-        path: /nfs-tls/home
+        path: /nfs/home
         state: directory
         mode: '0755'
 
-    - name: Mount /nfs-tls/home directory
+    - name: Mount /nfs/home directory
       ansible.posix.mount:
         src: '127.0.0.1:/var/nfs/home'
-        path: /nfs-tls/home
+        path: /nfs/home
         fstype: nfs
         opts: auto,nofail,noatime,nolock,intr,tcp,port=2323,actimeo=1800
         state: mounted
