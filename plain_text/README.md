@@ -58,3 +58,26 @@ ls -la
 ```shell
 vagrant destroy -f
 ```
+
+### Find all VirtualBox VMs and remove them
+
+ディレクトリ名の変更などの要因で、VMが起動した状態のまま、VagrantがVMを追跡できなくなることがある。
+この状態で新たなVMが起動すると、Ansibleは古いVMを初期化するが、Vagrantは新たなVMに接続する、のような意図しない挙動になるおそれがある。
+このような場合、VirtualBoxの管理コマンドで直接削除する。
+
+```shell
+VBoxManage list vms
+
+VBoxManage controlvm VM_NAME poweroff
+VBoxManage unregistervm VM_NAME
+```
+
+他に重要なVMがなければ、以下のエイリアスで、すべてのVMを削除できる（意図しないデータ喪失に注意）。
+
+- <https://github.com/hashicorp/vagrant/issues/910#issuecomment-16026322>
+
+```shell
+alias shutdown-vms="VBoxManage list vms | cut -f 1 -d ' ' | xargs -I NAME sh -c 'VBoxManage controlvm NAME poweroff ; VBoxManage unregistervm NAME' ; rm -rf ~/VirtualBox\ VMs/*"
+
+shutdown-vms
+```
