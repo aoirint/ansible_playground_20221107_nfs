@@ -1,6 +1,13 @@
 - name: Generate a server certificate
   hosts: servers
   tasks:
+    - name: Install apt dependencies
+      ansible.builtin.apt:
+        name:
+          - stunnel
+        state: latest
+        update_cache: true
+
     - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
       community.crypto.openssl_privatekey:
         path: /etc/stunnel/nfs-tls-server.key
@@ -33,6 +40,13 @@
 - name: Generate a client certificate
   hosts: clients
   tasks:
+    - name: Install apt dependencies
+      ansible.builtin.apt:
+        name:
+          - stunnel
+        state: latest
+        update_cache: true
+
     - name: Generate an OpenSSL private key with the default values (4096 bits, RSA)
       community.crypto.openssl_privatekey:
         path: /etc/stunnel/nfs-tls-client.key
@@ -69,7 +83,6 @@
       ansible.builtin.apt:
         name:
           - nfs-kernel-server
-          - stunnel
         state: latest
         update_cache: true
 
@@ -139,7 +152,6 @@
       ansible.builtin.apt:
         name:
           - nfs-common
-          - stunnel
         state: latest
         update_cache: true
 
