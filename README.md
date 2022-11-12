@@ -2,6 +2,7 @@
 
 NFS / NFS over TLS (stunnel) のおためし
 
+
 ## 実行環境
 
 - Ubuntu 20.04 (Host OS)
@@ -17,6 +18,7 @@ NFS / NFS over TLS (stunnel) のおためし
 - Ansible 2.12
   - <https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-ansible-on-ubuntu>
 
+
 ## 何をするか
 
 VagrantでVM（Ubuntu 20.04 with sshd）を立て、
@@ -24,6 +26,7 @@ AnsibleでNFSがインストールされたサーバ・クライアント環境�
 
 - nfs-kernel-server 1.3.4-2.5ubuntu3.4: <https://packages.ubuntu.com/focal/nfs-kernel-server>
 - stunnel4 5.56-1: <https://packages.ubuntu.com/focal/stunnel4>
+
 
 ## 参考
 
@@ -53,47 +56,95 @@ TLS
 - <http://blog.livedoor.jp/cadmean/archives/23650174.html>
 - <https://etherarp.net/securing-connections-with-stunnel/index.html>
 
-## 実行例
+
+## このリポジトリにおけるNFSディレクトリの設定
 
 - /nfs/general: 所有者が`nobody:nogroup`に固定
+  - クライアントのrootユーザがファイルを作成しても、所有者はサーバ側の`nobody:nogroup`になる
 - /nfs/home: 所有者をクライアントが変更できる（`no_root_squash`）
+  - クライアントのrootユーザがファイルを作成すると、所有者はサーバ側の`root:root`になる
+
+
+## 実行例
+
+### Initialize the VMs
+
+Generate a ssh key pair (without password) to sign in the VMs.
 
 ```shell
-# Remove the VM's SSH server key fingerprint from the host's known_hosts (required for re-created VMs)
-ssh-keygen -f "$HOME/.ssh/known_hosts" -R "192.168.56.10"
-ssh-keygen -f "$HOME/.ssh/known_hosts" -R "192.168.56.11"
-
-# Generate a ssh key pair (without password) to sign in the VMs
 mkdir -p secrets
-ssh-keygen -f secrets/key -P ""
+ssh-keygen -f secrets/ssh_key -P ""
+```
 
-# Initialize the VMs
+Create the VMs with the Vagrantfile.
+
+```shell
 vagrant up
+```
 
-# Execute the playbook
+Then, initialize the VMs with the Ansible Playbook.
+
+```shell
 ansible-playbook -i inventory.yaml playbook.yaml
+```
 
-# Open a ssh connection into the server VM
+### Create a file in the NFS directory on the server
+
+Open a ssh connection to the server VM.
+
+```shell
 vagrant ssh server
+```
 
+Create a file in the NFS directory.
+
+```shell
 cd /var/nfs/general
-# cd /var/nfs-tls/general
 
 sudo touch hoge
+```
 
-exit
+### Check the file in the NFS directory on the client
 
-# Open a ssh connection into the client VM
+Open a ssh connection to the client VM.
+
+```shell
 vagrant ssh client
+```
 
+Go to the NFS directory and you will see the shared file `hoge`.
+
+```shell
 cd /nfs/general
-# cd /nfs-tls/general
 
-# found "hoge"
 ls -la
+```
 
-exit
+### Remove the VMs for cleaning up
 
-# Remove the VMs for cleaning up
-vagrant destroy
+```shell
+vagrant destroy -f
+```
+
+### Find all VirtualBox VMs and remove them
+
+`.vagrant`ディレクトリの削除などの要因で、VMが起動した状態のまま、VagrantがVMを追跡できなくなることがある。
+この状態で新たなVMが起動すると、Ansibleは古いVMを初期化するが、Vagrantは新たなVMに接続する、のような意図しない挙動になるおそれがある。
+このような場合、VirtualBoxの管理コマンドで直接削除する。
+
+```shell
+VBoxManage list vms
+
+VBoxManage controlvm VM_NAME poweroff
+VBoxManage unregistervm VM_NAME
+```
+
+他に重要なVMがなければ、以下のエイリアスで、VirtualBox上のすべてのVMを削除できる（意図しないデータ喪失に注意）。
+
+- <https://github.com/hashicorp/vagrant/issues/910#issuecomment-16026322>
+
+```shell
+alias shutdown-vms="VBoxManage list vms | cut -f 1 -d ' ' | xargs -I NAME sh -c 'VBoxManage controlvm NAME poweroff ; VBoxManage unregistervm NAME' ; rm -rf ~/VirtualBox\ VMs/*"
+
+shutdown-vms
 ```
