@@ -180,3 +180,35 @@ alias shutdown-vms="VBoxManage list vms | cut -f 1 -d ' ' | xargs -I NAME sh -c 
 
 shutdown-vms
 ```
+
+### 秘密鍵・証明書入りPEMファイルを一括で作成
+
+- <https://www.linuxjournal.com/content/encrypting-nfsv4-stunnel-tls>
+
+```shell
+openssl req -newkey rsa:4096 -x509 -days 3650 -nodes -out nfs-tls-server.pem -keyout nfs-tls-server.pem
+
+openssl req -newkey rsa:4096 -x509 -days 3650 -nodes -out nfs-tls-client.pem -keyout nfs-tls-client.pem
+```
+
+### 秘密鍵、証明書署名要求、証明書をそれぞれ作成
+
+- <https://www.tohoho-web.com/ex/openssl.html>
+
+```shell
+# 秘密鍵の生成
+openssl genrsa 4096 > nfs-tls-server.key
+
+# 証明書署名要求の作成
+openssl req -new -key nfs-tls-server.key > nfs-tls-server.csr
+
+# 証明書の作成
+cat nfs-tls-server.csr | openssl x509 -req -days 3650 -signkey nfs-tls-server.key > nfs-tls-server.crt
+
+# ---
+
+openssl genrsa 4096 > nfs-tls-client.key
+openssl req -new -key nfs-tls-client.key > nfs-tls-client.csr
+cat nfs-tls-client.csr | openssl x509 -req -days 3650 -signkey nfs-tls-client.key > nfs-tls-client.crt
+```
+
